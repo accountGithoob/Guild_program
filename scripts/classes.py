@@ -117,9 +117,10 @@ class File:
                     member_id = row[1]
                     member_name = row[2]
                     member_join_date = row[3]
+                    redeemed_points = row[4]
 
                     if member_id not in guild_table:
-                        guild_table[member_name] = {'member_id': member_id, 'join_date': member_join_date}
+                        guild_table[member_name] = {'member_id': member_id, 'join_date': member_join_date, 'redeemed_points': redeemed_points}
                 return guild_table
         except Exception as err:
             print(f'Something went wrong inside "get_guild_data", error message: {err}')
@@ -152,8 +153,9 @@ class System:
                 member_data['raids'] = self._safe_call(self._get_raid_participation, member)
                 member_data['challenges'] = self._safe_call(self._get_challenges_participation, member)
                 member_data['deposited'] = self._safe_call(self._get_items_deposited, member)
-                member_data['total_points'] = self._get_member_points(member, member_data['raids'], member_data['challenges'], member_data['deposited'])
-                member_data['redeemed_points'] = 0
+                member_data['redeemed_points'] = self._get_redeemed_points(member)
+                member_data['total_points'] = self._get_member_points(member, member_data['redeemed_points'], member_data['raids'], member_data['challenges'], member_data['deposited'])
+
                 data.append(member_data)
             return data
         except Exception as err:
@@ -161,6 +163,8 @@ class System:
 
     def _get_member_join_date(self, name):
         return self.guild_data[name]['join_date']
+    def _get_redeemed_points(self, name):
+        return self.guild_data[name]['redeemed_points']
     def _get_member_member_id(self, name):
         return self.guild_data[name]['member_id']
     def _get_raid_participation(self, name):
@@ -169,7 +173,7 @@ class System:
         return self.challenges_item_data[name]
     def _get_items_deposited(self, name):
         return self.deposited_item_data[name]
-    def _get_member_points(self, member, raids, challenge_items, deposited_items):
+    def _get_member_points(self, member, redeemed_points, raids, challenge_items, deposited_items):
         try:
             raid_points = int(raids) * RAID_POINTS
             challenges_points = 0
@@ -183,8 +187,14 @@ class System:
                 #print(f'{member}: {total_points} += {int(self.items_data[item])} * {int(deposited_items[item])} ({item})')
                 deposited_points += int(self.items_data[item]) * int(deposited_items[item])
 
+
+            # Not the most efficient way, but who minds?
             total_points = raid_points + challenges_points + deposited_points
-            print(f'{member}: TP: {total_points}, RP: {raid_points}, CP: {challenges_points}, DP: {deposited_points}, 10%: {math.ceil(total_points/10)}, "taxes": {math.floor(total_points/200)} paycheck: {math.ceil(total_points/10) - math.floor(total_points/200)}') ## points/10 = 10%, points//200 = 5% of 10%
+            usable_points = total_points - int(redeemed_points)
+            ten_percent = math.ceil(usable_points/10) # points/10 = 10%
+            taxes = math.floor(ten_percent/20) # points//200 = 5% of 10%
+            paycheck = ten_percent - taxes
+            print(f'{member}: TP: {total_points}, Red pts: {redeemed_points}, Raid pts: {raid_points}, CP: {challenges_points}, DP: {deposited_points}, 10%: {ten_percent}, "taxes": {taxes} paycheck: {paycheck}')
             return total_points
         except (KeyError, AttributeError) as err:
             print(f'Problem with {member} inside "_get_member_points": {err} {self.items_data[item]}, {challenge_items[item]}')
