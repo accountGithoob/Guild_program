@@ -5,4 +5,4 @@ RAID_POINTS = 300
 
 ### MEMBERS ###
 CURRENT_OFFICERS = ['MaleDuck','Barf']
-GUILD_MEMBERS = ['TinyGhost', 'MaleDuck', 'Barf', 'RE1ARZ0RO', 'Nephnil', 'MadMooriah', 'Sesdas']
+GUILD_MEMBERS = ['TinyGhost', 'Barf', 'RE1ARZ0RO', 'Nephnil', 'MadMooriah']
