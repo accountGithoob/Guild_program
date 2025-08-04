@@ -191,7 +191,7 @@ class System:
             # Not the most efficient way, but who minds?
             total_points = raid_points + challenges_points + deposited_points
             usable_points = total_points - int(redeemed_points)
-            ten_percent = math.ceil((usable_points/100)*16) # points/10 = 10% # PS: modified to 16%
+            ten_percent = math.ceil((usable_points/100)*8) # points/10 = 10% # PS: modified to 8%
             taxes = math.floor(ten_percent/20) # points//200 = 0.5% of 10% # PS: modified to 0.4% of 8%
             paycheck = ten_percent - taxes
             print(f'{member}: TP: {total_points}, Red pts: {redeemed_points}, Raid pts: {raid_points}, CP: {challenges_points}, DP: {deposited_points}, 8%: {ten_percent}, "taxes": {taxes} paycheck: {paycheck}')
